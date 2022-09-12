@@ -1,0 +1,2 @@
+# AichaMaalej-BellaBeat_CaseStudy_RStudio
+This project was a part of the Google Data Analytics Certificate Capstone project. The main goal of this project was to draw insights and trends from BellaBeat users (smart watch company) to improve its products. We followed the six-step analysis process: Ask, Prepare, Process, Analyze, Share, and Act. This project was completed using R and Tidyverse library.
