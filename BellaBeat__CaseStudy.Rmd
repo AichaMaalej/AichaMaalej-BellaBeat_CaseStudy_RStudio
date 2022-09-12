@@ -1,0 +1,379 @@
+---
+title: "BellaBeat_CaseStudy_3"
+author: "Aicha"
+date: "2022-09-12"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This capstone project is completed for the Google Data Analytics Professional Certificate Case Study 2: *How Can a Wellness Technology Company Play It Smart?*
+
+## 1.0 Company Introduction
+According to Forbes, “Bellabeat is a data-oriented wellness tech company that was founded by Sandro Mur, Urška Sršen, and Lovepreet Singh in 2013” (Robter, 2020). The company is global with offices in London, Hong Kong and Zagreb, but is headquarter in San Francisco. The company focuses on women's health and wellness with a collection of wearable and non-wearable tech. The four pillars of their brand include: smart insights, women-centric, holistic approach and body positivity. With this in mind, their products focus on including metrics around a woman's menstrual cycle stating on their website that “Bellabeat helps you get in sync with your natural cycle” and that “through tracking your body's bio-responses and aligning that data with your hormonal cycle, you'll always know why you feel how you do.”
+
+
+#### 1.1 Statement of Business Task
+
+Smart devices are a big part of people’s everyday life. As a smart device manufacturer, Bellabeat can benefit from learning the trend of smart device usage and make data-driven business strategies to explore opportunities for growth.
+
+#### 1.2 Good starting points would be:
+
+1. Investigating the products that have similar functionality
+2. Drill down to explore user behaviors when using the product in order to identify any usage trends
+3. Apply the trend on Bellabeat products to identify recommendations on functionality and marketing strategies
+
+Insights from the investigation can help Bellabeat to identify weaknesses of their products and new functions or even inspire ideas on new products.
+
+It can also help to inform marketing strategies like knowing the segment of the age group that is the most active user of smart devices, then Bellabeat can invest in focusing on a specific age group when doing marketing campaigns in the future.
+
+To find trends in the fitness tracker industry and improve Bellabeats' products, we will use the six step analysis process: ask, prepare, process, analyze, share, and act.
+
+## 2.0 Step 1: ASK
+
+Questions to guide the analysis:
+
+- What are some trends in smart device usage?
+- How could these trends apply to Bellabeat customers?
+- How could these trends help influence Bellabeat marketing strategy?
+
+#### 2.1 Deliverables
+
+- A clear summary of the business task
+- A description of all data sources used
+- Documentation of any cleaning or manipulation of data
+- A summary of your analysis
+- Supporting visualizations and key findings
+- Your top high-level content recommendations based on your analysis
+
+
+## 3.0 Step 2: PREPARE
+
+
+#### 3.1 Information on Data Source
+
+The data is publicly available on this link: [FitBit Fitness Tracker Data](https://www.kaggle.com/datasets/arashnic/fitbit)  and stored in CSV files.
+The data has been made available by Mobius under CC0: Public Domain License.
+This Kaggle data set contains personal fitness tracker from thirty eligible Fitbit users who consented to the submission of personal tracker data, including minute-level output for physical activity, heart rate, and sleep monitoring. It includes information about daily activity, steps, and heart rate that can be used to explore users’ habits.
+
+#### 3.2 Limitations of Data Set
+The data was collected in a survey, so we can’t be sure of its credibility and integrity.
+The data only represents 30 Fitbit users, therefore we might have sample selection bias.
+The data was collected between 03.12 and 05.12 in 2016. The three days time frame is too short to be representative, and the data is outdated as the users’ behavior (nutrition, sleep and exercise patterns) might have changed since then.
+There is a discrepancy in the total number of users recorded. The datasets contain data from 33 users, but the metadata points it’s collected only from 30 users. There are no duplicates.
+There is no information about the gender of the users participating in the data collection. Hence, the conclusions have limited predictive utility. Also, the data should be complemented with other datasets in order to make a good analysis.
+The data is not consistent. There is no information in the metadata about if the distance is in kilometers or in miles, and Fitbit users can select their unit of preference. Upon transforming steps both into km and into miles, it seems the data provided is in kilometers.
+The data is incoherent. There is no description provided of the units across the datasets. The metadata is not providing any information whatsoever.
+The age of the respondents is not specified.
+
+#### 3.3 Is Data ROCCC?
+A good data source is ROCCC which stands for Reliable, Original, Comprehensive, Current, and Cited.
+
+1. Reliable - MED - I trust that I’m getting accurate information as the data comes from a real-world source. However, I am not sure whether the data is unbiased as I have no information on the collection criteria.
+
+2. Original - LOW - The data comes from a third-party provider. (Amazon Mechanical Turk)
+
+3. Comprehensive - MED - The data can provide good answers to most of the business questions.
+
+4. Current - LOW - The data has been collected between 03.12.2016-05.12.2016, so it’s outdated.
+
+5. Cited - LOW - The data was collected by a third party, therefore unknown. .
+
+The data is not credible enough for the analysis results to be considered single source of truth in the decision-making process.
+
+#### 3.4 Data Selection
+For the purpose of this case study, I have downloaded the archived folder which includes 18 CSV files containing the following data: Daily activity, daily calories, daily intensities, daily steps, heartrate seconds, hourly calories, hourly intensities, hourly steps, minute calories (narrow and wide), minute intensities (narrow and wide), minute METs (narrow), minute sleep, minute steps (narrow and wide), sleep day, and weight log info.
+
+We limit the analysis for only 3 dataset for this present work: weightLoginfo_merged, sleepDay_merged, and dailyActivity_merged. The remaining data will be explored in future analysis.
+
+## 4.0 Step 3: PROCESS
+
+#### 4.1 Loading Libraries
+
+```{r}
+
+
+library('tidyverse')
+library('janitor')
+library('skimr')
+library('here')
+library('dplyr')
+library(lubridate)
+library(ggplot2)
+```
+
+#### 4.2 Importing the datasets
+
+```{r}
+
+weightLog <- read_csv("weightLoginfo_merged.csv")
+sleepLog <- read_csv("sleepDay_merged.csv")
+dailyAct <- read_csv("dailyActivity_merged.csv")
+```
+#### 4.3 Data Cleaning
+
+```{r}
+# Clean column names in the dataframes
+
+dailyAct_2 <- clean_names(dailyAct)
+sleepLog_2 <- clean_names(sleepLog)
+weightLog_2 <- clean_names(weightLog)
+```
+
+
+
+
+
+```{r}
+# Preview first 10 rows with all columns
+head(weightLog,10)
+head(sleepLog, 10)
+head(dailyAct, 10)
+```
+
+
+```{r}
+# Check for missing values
+
+sum(is.na(weightLog))
+sum(is.na(sleepLog))
+sum(is.na(dailyAct))
+
+```
+
+#### Only the waitlog dataset has 65 missing values.
+#### We need to check where they are and what they represent in order to decide how to proceed with that.
+
+
+```{r}
+#head(weightLog,5)
+nrow(weightLog)
+```
+
+#### The missing values belong in a column named Fat. There are only 2 cells with data in this column, so the column brings no insights into the users. Hence, we can remove the column.
+
+```{r}
+#Deleting the "Fat" column
+
+subset(weightLog, select = -Fat )
+```
+
+```{r}
+# Check for Null values
+
+sum(is.null(weightLog))
+sum(is.null(sleepLog))
+sum(is.null(dailyAct))
+```
+
+#### There are no null values in the dataframe.
+
+```{r}
+
+#Count the unique values in ID column to find out the real number of participants in the survey.
+
+n_distinct(weightLog$Id)
+n_distinct(sleepLog$Id)
+n_distinct(dailyAct$Id)
+
+```
+
+#### We see a lot of inconsistency in the data: the dataframes have different number of unique IDs (different number of users giving data).
+
+#### In the meta data, it's mentioned that the number of participants in the survey was 30. However, the total number of unique IDs is 8 for the "weightLog" dataframe is 8, 24 for the "sleepLog" dataframe, and 33 for the "dailyAct" dataframe.
+
+####  Taking this insight into consideration, the results of the analysis of some of the dataframes shouldn’t be taken as a single source of truth and 100% representative due to the little amount of data.
+
+
+```{r}
+#weightLog
+colnames(weightLog)
+
+```
+```{r}
+#sleepLog
+colnames(sleepLog)
+
+```
+```{r}
+#dailyAct
+colnames(dailyAct)
+```
+
+
+```{r}
+# Numberof observations there are in each dataframe
+
+nrow(weightLog)
+nrow(sleepLog)
+nrow(dailyAct)
+```
+
+
+
+```{r}
+colnames(sleepLog)
+```
+
+
+
+```{r}
+colnames(dailyAct)
+```
+
+```{r}
+colnames(weightLog)
+```
+
+## 5.0 Step 4: Analyze/SHARE
+
+#### Observation 1
+
+We create a new column that calculates the **BMI level (underweight,normal,overweight, obese)** for each user. 
+
+
+```{r}
+weightLog <- weightLog %>% mutate(BMIlevel = case_when(BMI < 18.5 ~ "underweight", BMI >= 18.5 & BMI < 25 ~ "normal", BMI >= 25 & BMI < 30 ~ "overweight", BMI >= 30 ~ "obese"))
+
+```
+
+Before we start analyzing our data we need to properly organize the data. As part of the organizing process we will **join datasets** so we can perform the correct analysis. We joined the sleep and daily activity data sets by user ID and date. Similarly, we joined the weight log and daily activity data set by user ID. By creating these two merged tables, it will help us perform the necessary calculations for each user.
+
+```{r}
+cal <- dailyAct %>% group_by(Id) %>% summarise(avgcal = mean(Calories))
+levelcal <- cal %>% inner_join(weightLog, by = "Id") %>% distinct(Id, .keep_all = TRUE) %>% group_by(BMIlevel) %>% summarise(cals = mean(avgcal)) 
+```
+
+
+```{r}
+ggplot(levelcal, aes(x = BMIlevel, y = cals, fill = BMIlevel)) +
+  geom_bar(stat = "identity") + 
+  theme_classic() + 
+  labs(x = "BMI Level", y = "Average Calories", title = "Average Calories Burned Per Day by BMI Level")
+```
+
+From the bar plot above we can see that overweight users burn the most amount of calories while the normal users burn the least on average per day. 
+
+
+#### Observation 2
+
+Now we want to explore if there is a relationship between the **Activity status** and the **amount of total sleep** users get per night. To get a better analysis of how total amount of active minute has on the total minutes asleep, we will analyze each activity level: very, fairly, slightly, and sedentary active. 
+
+
+
+```{r}
+sleepLog <- sleepLog %>% separate(SleepDay,into = c("ActivityDate", "time"), sep = ' ')
+StepsVsSleep <- dailyAct %>% inner_join(sleepLog, by = c("Id","ActivityDate"))
+ggplot(StepsVsSleep, aes(x = VeryActiveMinutes, y = TotalMinutesAsleep)) +
+  geom_jitter() +
+  geom_smooth(se = FALSE, color = "blue") + 
+  theme_classic() +
+  labs(title = "Very Active Minutes Vs Total Minutes Asleep")
+
+cor.test(StepsVsSleep$VeryActiveMinutes,StepsVsSleep$TotalMinutesAsleep)
+
+ggplot(StepsVsSleep, aes(x = FairlyActiveMinutes, y = TotalMinutesAsleep)) +
+  geom_jitter() +
+  geom_smooth(se = FALSE, color = "blue") + 
+  theme_classic() +
+  labs(title = "Fairly Active Minutes Vs Total Minutes Asleep")
+
+cor.test(StepsVsSleep$FairlyActiveMinutes,StepsVsSleep$TotalMinutesAsleep)
+
+ggplot(StepsVsSleep, aes(x = LightlyActiveMinutes, y = TotalMinutesAsleep)) +
+  geom_jitter() +
+  geom_smooth(se = FALSE, color = "blue") + 
+  theme_classic() +
+  labs(title = "Lightly Active Minutes Vs Total Minutes Asleep")
+
+cor.test(StepsVsSleep$LightlyActiveMinutes,StepsVsSleep$TotalMinutesAsleep)
+
+ggplot(StepsVsSleep, aes(x = SedentaryMinutes, y = TotalMinutesAsleep)) +
+  geom_jitter() +
+  geom_smooth(se = FALSE, color = "blue") + 
+  theme_classic() +
+  labs(title = "Sedentary Minutes Vs Total Minutes Asleep")
+  
+cor.test(StepsVsSleep$SedentaryMinutes,StepsVsSleep$TotalMinutesAsleep)
+
+```
+
+
+From the scatter plots above we can observe that very, fairly, and sedentary active all have a negative correlation with total amount of minuets asleep. In other words, the more users are very, fairly and sedentary active the less sleep they get. 
+
+
+#### Observation 3
+
+Now we want to explore is if there is a relationship between calories burned and total steps taken per day depending on BMI level.
+
+```{r}
+#Check if there is a relationship between BMI level and total steps
+bmisteps <- dailyAct %>% inner_join(weightLog, by = "Id")
+ggplot(bmisteps, aes(x = TotalSteps, y = Calories, color = BMIlevel)) +
+  geom_jitter() + 
+  theme_classic() + 
+  geom_smooth(se = FALSE)
+```
+
+```{r}
+cor.test(bmisteps$TotalSteps,bmisteps$Calories)
+```
+
+
+
+Here we can see that there is an overall positive correlation between total steps and calories burned. In other words, the more a user walks the more calories they will burn per day. However, we can see that there is a difference in calories burned by BMI level. Users considered overweight tend to burn more calories.
+
+
+## 6.0 Step 5: SHARE/ACT
+
+
+In the share steps we will refer back to the business task and answer the questions based on the findings and observations we have made in the analyze step.
+
+**1. What are some trends in smart device usage?**
+
+  - Users classified as Obese tend to burn less calories on average per day.
+  
+  - Total amount of steps and calories burned have a positive relationship but users classified as obese register less steps.
+
+**2. How could these trends apply to Bellabeat customers?**
+
+  - These trends can benefit Bellabeat customers so that they could monitor and target their health and fitness goals.
+  
+**3. how could these trends help influence Bellabeat marketing strategy?**
+
+  - These trends can help lead the next marketing strategy by targeting consumers that want to make changes in their personal health and fitness.
+  
+**4. Recommendations**
+
+  - Suggest the number of steps they need to reach in a day depending on their health goals.
+  
+  - recommend a sleep schedule based on the steps taken, calories burned, and level of activity.
+  
+  - Send users notifications through out the day of their activity levels in order to motivate them to reach their goals.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
